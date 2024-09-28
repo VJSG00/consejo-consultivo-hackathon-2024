@@ -1,4 +1,4 @@
-import { Patient } from "../types/patient"
+import { Patient } from "../types/paciente"
 // import { formatCurrency } from "../utils"
 
 type PatientsDetailsProps={

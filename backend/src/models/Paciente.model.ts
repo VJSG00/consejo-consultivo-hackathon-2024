@@ -1,60 +1,136 @@
-//Importamos los decoradores:
-import { Table, Column, Model, DataType, Default, HasMany} from 'sequelize-typescript'
-import HistoriaClinica from './HistoriaClinica.model';
-import Alergia from './Alergias.model';
-import EntregaMedicamentos from './EntregaMedicamentos.model';
+import { Table, Column, Model, DataType, BelongsToMany } from 'sequelize-typescript';
+import Entrega from './Entrega.model';
+import PacienteEntregas from './PacienteEntregas.model';
 
-
-//Creamos la tabla de datos, su nombre es paciente
 @Table({
-    tableName:"Pacientes"
+    tableName: "Pacientes"
 })
-
-
-//Heredamos Model a nuestra clase pacientes y le añadimos columnas con los decoradores.
-class Pacientes extends Model {
+class Paciente extends Model {
     @Column({
-        type: DataType.STRING(100)
+        type: DataType.STRING,
+        allowNull: false
     })
-    nombre!: string;
+    nombreCompleto!: string;
 
     @Column({
-        type: DataType.STRING(100)
-    })
-    apellido!: string;
-
-    @Column({
-        type: DataType.INTEGER()
-    })
-    cedula!: number;
-
-    @Column({
-        type: DataType.STRING()
-    })
-    club!: string
-
-    @Column({
-        type: DataType.DATE
+        type: DataType.DATE,
+        allowNull: false
     })
     fechaNacimiento!: Date;
 
-    @Default(true)
     @Column({
-        type: DataType.BOOLEAN()
+        type: DataType.STRING,
+        allowNull: true
     })
-    enEspera!: boolean;
+    direccion!: string;
 
-    @HasMany(() => HistoriaClinica)
-    historiasClinicas!: HistoriaClinica[];
+    @Column({
+        type: DataType.STRING,
+        allowNull: true
+    })
+    telefono!: string;
 
-    @HasMany(() => Alergia)
-    alergias!: Alergia[];
+    @Column({
+        type: DataType.STRING,
+        allowNull: false
+    })
+    correo!: string;
 
-    @HasMany(() => EntregaMedicamentos)
-    entregasMedicamentos!: EntregaMedicamentos[];
+    @Column({
+        type: DataType.ENUM('cedula', 'p. nacimiento'),
+        allowNull: false
+    })
+    identificador!: string;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: true
+    })
+    cedula?: string;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: true
+    })
+    partidaNacimiento?: string;
+
+    @Column({
+        type: DataType.ARRAY(DataType.STRING),
+        allowNull: false
+    })
+    antecedentes!: string[];
+
+    @Column({
+        type: DataType.ARRAY(DataType.STRING),
+        allowNull: false
+    })
+    enfermedadesCronicas!: string[];
+
+    @Column({
+        type: DataType.ARRAY(DataType.STRING),
+        allowNull: true
+    })
+    medicamentosBasicos!: string[];
+
+    @Column({
+        type: DataType.ARRAY(DataType.STRING),
+        allowNull: true
+    })
+    medicamentosEsenciales!: string[];
+
+    @Column({
+        type: DataType.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+        
+    })
+    prioridad!: boolean;
+
+    @Column({
+        type: DataType.DATE,
+        allowNull: true
+    })
+    periodoTratamiento!: Date;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: true
+    })
+    observaciones!: string;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: true
+    })
+    comunidad!: string;
+
+    @Column({
+        type: DataType.ENUM('Urbana', 'Rural', 'Suburbana'),
+        allowNull: true
+    })
+    tipoComunidad!: string;
+
+    @Column({
+        type: DataType.ENUM('Propia', 'Alquiler', 'ViviendaSocial', 'Precaria'),
+        allowNull: true
+    })
+    tipoVivienda!: string;
+
+    @Column({
+        type: DataType.ENUM('Femenino', 'Masculino'),
+        allowNull: false
+    })
+    genero!: string;
+
+    @Column({
+        type: DataType.ENUM('Activo', 'No Activo', 'Fallecido'),
+        allowNull: false,
+        defaultValue: 'Activo'
+    })
+    status!: string;
+
+    @BelongsToMany(() => Entrega, () => PacienteEntregas)
+    entregas!: Entrega[];
 }
 
-//Exportamos nuestro modelo
-export default Pacientes
-
-//Para generar Nuestros modelos, lo hacemos en db.ts
+export default Paciente;

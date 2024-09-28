@@ -10,16 +10,40 @@ const Home = () => {
       link: '/pacientes'
     },
     {
-      title: 'Compañías',
-      description: 'Gestiona la información de las compañías.',
+      title: 'Medicinas',
+      description: 'Gestiona la información de las Medicinas.',
       imageUrl: 'https://images.pexels.com/photos/5910953/pexels-photo-5910953.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-      link: '/companias'
+      link: '/medicinas'
     },
     {
       title: 'Estadisticas',
       description: 'Información Estadistica.',
       imageUrl: 'https://images.pexels.com/photos/590022/pexels-photo-590022.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
       link: '/graficos'
+    },
+    {
+      title:'Entregas',
+      description:'Gestiona la información de las Entregas',
+      imageUrl:'https://images.pexels.com/photos/6646967/pexels-photo-6646967.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      link:'/entregas'
+    },
+    {
+      title:'Donantes',
+      description:'Gestiona la información de los Donantes',
+      imageUrl:'https://images.pexels.com/photos/6646906/pexels-photo-6646906.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      link:'/donantes'
+    },
+    {
+      title:'Pruebas',
+      description:'Pruebas',
+      imageUrl:'https://images.pexels.com/photos/163016/crash-test-collision-60-km-h-distraction-163016.jpeg',
+      link:'/pruebas'
+    },
+    {
+      title:'Reporte',
+      description:'Reportes',
+      imageUrl:'https://images.pexels.com/photos/163016/crash-test-collision-60-km-h-distraction-163016.jpeg',
+      link:'/reporte'
     }
   ];
 

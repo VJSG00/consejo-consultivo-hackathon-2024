@@ -1,39 +1,24 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
-import Pacientes from './Paciente.model';
+import { Table, Column, Model, ForeignKey, DataType } from 'sequelize-typescript';
+import Entrega from './Entrega.model';
+import Medicamento from './Medicamento.model';
 
 @Table({
-    tableName: "EntregasMedicamentos"
+    tableName: "EntregaMedicamentos"
 })
 class EntregaMedicamentos extends Model {
+    @ForeignKey(() => Entrega)
     @Column({
-        type: DataType.DATE
+        type: DataType.INTEGER,
+        allowNull: false
     })
-    fechaEntrega!: Date;
+    idEntrega!: number;
 
+    @ForeignKey(() => Medicamento)
     @Column({
-        type: DataType.STRING
+        type: DataType.INTEGER,
+        allowNull: false
     })
-    medicamento!: string;
-
-    @Column({
-        type: DataType.INTEGER
-    })
-    cantidad!: number;
-
-    @Column({
-        type: DataType.DATE,
-        allowNull: true
-    })
-    expirationDate?: Date;
-
-    @ForeignKey(() => Pacientes)
-    @Column({
-        type: DataType.INTEGER
-    })
-    pacienteId!: number;
-
-    @BelongsTo(() => Pacientes)
-    paciente!: Pacientes;
+    idMedicamento!: number;
 }
 
 export default EntregaMedicamentos;

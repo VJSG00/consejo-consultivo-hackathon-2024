@@ -12,6 +12,9 @@ import dotenv from 'dotenv'
 // Login Register and Auth
 import authRoutes from './routes/authRoutes'
 import newRouter from './routes/newRouter'
+import Dashrouter from './controllers/DashBoards/Dashboard1'
+
+import newAuthRouter from './routes/newAuthRouter'
 
 //Variables de entorno para cors.
 dotenv.config()
@@ -59,9 +62,19 @@ server.use(express.json());
 server.use(morgan('dev'));
 
 //Rutas
+//Router descontinuado
 server.use('/api', router)
 
+//Router de Autenticación
+server.use('/api/auth', newAuthRouter)
+
+//Router de Roles
 server.use('/api', newRouter)
+//Router de Dashboard - TODO: Separar en Ruta y Controlador
+server.use('/api', Dashrouter)
+
+
+
 
 //Documentación
 //server.use('/docs', SwaggerUi.serve, SwaggerUi.setup(swaggerSpec))
