@@ -1,75 +1,79 @@
-// src/routes/routes.ts
+// Import Express
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { createAllData, getAllData, updateAllData } from '../controllers/mainController';
+
+//Controladores basicos
 import { handleInputErrors } from '../middleware';
-import { createEntregaMedicamentos, getEntregasMedicamentos } from '../controllers/entregaMedicamentos';
+import { getPacientes, getPacienteById, createPaciente, updatePaciente, deletePaciente } from '../controllers/Paciente';
+import { getMedicamentos, getMedicamentoById, createMedicamento, updateMedicamento, deleteMedicamento } from '../controllers/Medicamentos';
+import { getDonantes, getDonanteById, createDonante, updateDonante, deleteDonante } from '../controllers/Donantes';
+import { getEntregas, getEntregaById, updateEntrega, deleteEntrega } from '../controllers/Entregas';
+
+//controladores avanzados
+import { asignarMedicamentos } from '../controllers/Medicamentos';
+import { createFullEntrega } from '../controllers/Entregas';
+import { getInventarioActual, populateInventarioActual } from '../controllers/InventarioActual';
+import { getInventarioMensual, populateInventarioMensual } from '../controllers/InventarioMensual';
+
+// Seguridad para las rutas:
+import { authenticate, verifyRole } from '../middleware/authMiddleware';
+
+// Validaciones:
+import { pacienteValidation, medicamentoValidation, donanteValidation, entregaValidation, createFullEntregaValidation, asignarMedicamentosValidation } from './Validaciones/Validaciones';
 
 const newRouter = Router();
 
-// Validaciones para los datos del paciente
-const pacienteValidation = [
-    body('pacienteData.nombre').notEmpty().isString().withMessage('El nombre debe ser una cadena de texto'),
-    body('pacienteData.apellido').notEmpty().isString().withMessage('El apellido debe ser una cadena de texto'),
-    body('pacienteData.cedula').notEmpty().isInt().withMessage('La cédula debe ser un número entero'),
-    body('pacienteData.club').notEmpty().isString().withMessage('El club debe ser una cadena de texto'),
-    body('pacienteData.fechaNacimiento').notEmpty().isDate().withMessage('La fecha de nacimiento debe ser una fecha válida'),
-    body('pacienteData.enEspera').notEmpty().isBoolean().withMessage('El estado en espera debe ser un valor booleano')
-];
+// Aplicar middleware a todas las rutas
+// newRouter.use(authenticate);
+// newRouter.use(verifyRole('Gestor'));
 
-// Validaciones para los datos de alergias
-const alergiasValidation = [
-    body('alergiasData.*.tipo').notEmpty().isString().withMessage('El tipo de alergia debe ser una cadena de texto'),
-    body('alergiasData.*.severidad').notEmpty().isString().withMessage('La severidad debe ser una cadena de texto')
-];
+// Rutas para Pacientes
+newRouter.get('/pacientes', getPacientes);
+newRouter.get('/pacientes/:id', getPacienteById);
+    newRouter.post('/pacientes', pacienteValidation, handleInputErrors, createPaciente);
+newRouter.put('/pacientes/:id', pacienteValidation, handleInputErrors, updatePaciente);
+newRouter.delete('/pacientes/:id', deletePaciente);
 
-// Validaciones para los datos de historias clínicas
-const historiasClinicasValidation = [
-    body('historiasClinicasData.*.descripcion').notEmpty().isString().withMessage('La descripción debe ser una cadena de texto'),
-    body('historiasClinicasData.*.fecha').notEmpty().isDate().withMessage('La fecha debe ser una fecha válida')
-];
+// Rutas para Medicamentos
+newRouter.get('/medicamentos', getMedicamentos);
+newRouter.get('/medicamentos/:id', getMedicamentoById);
+newRouter.post('/medicamentos', medicamentoValidation, handleInputErrors, createMedicamento);
+newRouter.put('/medicamentos/:id', medicamentoValidation, handleInputErrors, updateMedicamento);
+newRouter.delete('/medicamentos/:id', deleteMedicamento);
 
-// Validaciones para los datos de entregas de medicamentos
-const entregasMedicamentosValidation = [
-    body('entregasMedicamentosData.*.fechaEntrega').notEmpty().isDate().withMessage('La fecha de entrega debe ser una fecha válida'),
-    body('entregasMedicamentosData.*.medicamento').notEmpty().isString().withMessage('El nombre del medicamento debe ser una cadena de texto'),
-    body('entregasMedicamentosData.*.cantidad').notEmpty().isInt().withMessage('La cantidad debe ser un número entero'),
-    body('entregasMedicamentosData.*.expirationDate').optional().isDate().withMessage('La fecha de expiración debe ser una fecha válida')
-];
+// Rutas para Donantes
+newRouter.get('/donantes', getDonantes);
+newRouter.get('/donantes/:id', getDonanteById);
+newRouter.post('/donantes', donanteValidation, handleInputErrors, createDonante);
+newRouter.put('/donantes/:id', donanteValidation, handleInputErrors, updateDonante);
+newRouter.delete('/donantes/:id', deleteDonante);
 
-// Ruta para actualizar todos los datos
-newRouter.put('/update-all', 
-    pacienteValidation, 
-    alergiasValidation, 
-    historiasClinicasValidation, 
-    entregasMedicamentosValidation, 
-    handleInputErrors, 
-    updateAllData
-);
+// Rutas para Entregas
+newRouter.get('/entregas', getEntregas);
+newRouter.get('/entregas/:id', getEntregaById);
+newRouter.put('/entregas/:id', entregaValidation, handleInputErrors, updateEntrega);
+newRouter.delete('/entregas/:id', deleteEntrega);
 
-// Ruta para crear todos los datos
-newRouter.post('/create-all', 
-    pacienteValidation, 
-    alergiasValidation, 
-    historiasClinicasValidation, 
-    entregasMedicamentosValidation, 
-    handleInputErrors, 
-    createAllData
-);
-
-// Ruta para obtener todos los datos
-newRouter.get('/pacientes', getAllData);
-
-// Conexión back y front primera parte
-// testeando las medicinas
-newRouter.get('/medicinas', getEntregasMedicamentos)
+// Login y registro
 
 
-// Ruta para crear una entrega de medicamento
-newRouter.post('/medicinas', 
-    entregasMedicamentosValidation, 
-    handleInputErrors, 
-    createEntregaMedicamentos
-);
+//Inventario:
+// Rutas para Inventario Actual
+newRouter.get('/inventario-actual', getInventarioActual);
+newRouter.put('/populate-inventario-actual', populateInventarioActual);
+// Rutas para Inventario Mensual
+newRouter.get('/inventario-mensual', getInventarioMensual);
+newRouter.put('/populate-inventario-mensual', populateInventarioMensual);
+
+//Controladores Avanzados:
+// Ruta para asignar medicamentos a un paciente
+newRouter.put('/asignar-medicamentos', asignarMedicamentosValidation, handleInputErrors, asignarMedicamentos);
+
+// Ruta para crear una entrega completa
+newRouter.post('/create-full-entrega', createFullEntregaValidation, handleInputErrors,createFullEntrega);
+
+// Ruta para el Dashboard - TODO: separar en router - controlador.
+//newRouter.get('/dashboard-data', getDashboardData);
+
 
 export default newRouter;

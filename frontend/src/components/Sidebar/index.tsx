@@ -108,7 +108,7 @@ export default function SideBar() {
         <div>
 
             <div onClick={() => setIsOpen(false)}
-            className={`md:hidden fixed inset-0 max-h-screen z-[998] bg-black/50 ${isOpen ? "block" : "hidden"}`} 
+            className={`md:hidden sticky inset-0 max-h-screen z-[998] bg-black/50 ${isOpen ? "block" : "hidden"}`} 
             >
                 
             </div>
