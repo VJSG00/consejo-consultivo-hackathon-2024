@@ -1,8 +1,7 @@
 import { Outlet } from 'react-router-dom'
-//import SideBar from '../components/Sidebar'
-import Header from '../views/VistaIniciales/components/Header'
-//import Navbar from '../components/Navbar/Navbar'
-// import { SideBar2 } from '../components/SideBar2'
+import Header from '../components/HeaderTest'
+import FooterFlowbite from '../components/Footer'
+
 
 
 export default function Layout() {
@@ -13,20 +12,20 @@ export default function Layout() {
 
 
 
-          <Header />
+        <Header />
 
+        <div className="flex flex-col flex-1 overflow-y-auto">
 
+          <section className='m-10 p-10'>
 
-          <div className="flex flex-col flex-1 overflow-y-auto">
+            <Outlet />
 
-            <section className='m-10 p-10'>
+          </section>
 
-              <Outlet />
-
-            </section>
-
-          </div>
         </div>
+
+        <FooterFlowbite />
+      </div>
 
 
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { z } from 'zod';
-import { InventarioActualSchema, InventarioMensualSchema, InventarioActual, InventarioMensual} from '../types/inventariosActual';
+import { InventarioActualSchema} from '../types/inventariosActual';
+import { InventarioMensualSchema } from '../types/inventarioMensual';
 
 export async function getInventarioActual() {
     try {
@@ -35,7 +35,8 @@ export async function getInventarioMensual() {
 export async function populateInventarioActual() {
     try {
         const url = `${import.meta.env.VITE_API_URL}/populate-inventario-actual`;
-        const { data } = await axios.post(url);
+        const { data } = await axios.put(url);
+        console.log(data)
         return data;
     } catch (error) {
         console.error(error);

@@ -15,15 +15,11 @@ export const getInventarioActual = async (req: Request, res: Response) => {
 };
 
 
-// Controlador Avanzado.
 export const populateInventarioActual = async (req: Request, res: Response) => {
     try {
         console.log('Iniciando la población del inventario actual...');
 
-        // Eliminar el inventario actual existente, excepto la demanda
-        await InventarioActual.destroy({ where: {}, truncate: false });
-        console.log('InventarioActual existente eliminado, excepto la demanda.');
-
+        // Buscar medicamentos disponibles.
         const medicamentos = await Medicamento.findAll();
         console.log('Medicamentos encontrados:', medicamentos);
 
@@ -44,13 +40,8 @@ export const populateInventarioActual = async (req: Request, res: Response) => {
                     cantidad: 0,
                     demanda: 0,
                     esencial: Data.esencial !== null ? Data.esencial : false,
-                    mes: Data.fechaEntrega ? new Date(Data.fechaEntrega).toLocaleString('default', { month: 'long' }) : 'Desconocido',
-                    club: Data.tipo ? (
-                        Data.tipo.includes('hipertension') ? 'Hipertensión' :
-                        Data.tipo.includes('diabetes') ? 'Diabetes' :
-                        Data.tipo.includes('cancer') ? 'Cáncer' :
-                        Data.tipo.includes('asma') ? 'Asma' : 'Otro'
-                    ) : 'Desconocido',
+                    mes: Data.fechaDonante ? new Date(Data.fechaDonante).toLocaleString('default', { month: 'long' }) : 'Desconocido',
+                    club: Data.tipo || ["Desconocido"], // Usar el tipo del medicamento como club
                     marca: Data.marca,
                     precioUnidad: Data.precio || 0
                 });
@@ -58,22 +49,38 @@ export const populateInventarioActual = async (req: Request, res: Response) => {
 
             const inventario = inventarioMap.get(key);
             inventario.cantidad += Data.idPaciente === null ? 1 : 0;
-            inventario.demanda = inventario.cantidad + (Data.idPaciente !== null ? 1 : 0);
+            inventario.demanda += Data.idPaciente !== null ? 1 : 0;
         }
 
         for (const [key, inventario] of inventarioMap.entries()) {
             const [nombre, marca] = key.split('-');
-            await InventarioActual.create({
-                nombreMedicamento: nombre,
-                cantidad: inventario.cantidad,
-                demanda: inventario.demanda,
-                esencial: inventario.esencial,
-                mes: inventario.mes,
-                club: inventario.club,
-                marca: inventario.marca,
-                precioUnidad: inventario.precioUnidad
-            });
-            console.log(`InventarioActual creado para medicamento ${nombre} de marca ${marca}`);
+            const existingInventario = await InventarioActual.findOne({ where: { nombreMedicamento: nombre, marca } });
+
+            if (existingInventario) {
+                // Actualizar el inventario existente
+                await existingInventario.update({
+                    cantidad: inventario.cantidad,
+                    demanda: (existingInventario.demanda || 0) + inventario.demanda,
+                    esencial: inventario.esencial,
+                    mes: inventario.mes,
+                    club: inventario.club,
+                    precioUnidad: inventario.precioUnidad
+                });
+                console.log(`InventarioActual actualizado para medicamento ${nombre} de marca ${marca}`);
+            } else {
+                // Crear un nuevo inventario si no existe
+                await InventarioActual.create({
+                    nombreMedicamento: nombre,
+                    cantidad: inventario.cantidad,
+                    demanda: inventario.demanda,
+                    esencial: inventario.esencial,
+                    mes: inventario.mes,
+                    club: inventario.club,
+                    marca: inventario.marca,
+                    precioUnidad: inventario.precioUnidad
+                });
+                console.log(`InventarioActual creado para medicamento ${nombre} de marca ${marca}`);
+            }
         }
 
         res.status(201).json({ message: 'Inventario actual populated successfully' });

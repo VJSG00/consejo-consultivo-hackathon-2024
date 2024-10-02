@@ -1,63 +1,57 @@
-import {Link} from 'react-router-dom' 
-import { PinInput, PinInputField} from '@chakra-ui/pin-input'
-import { useMutation } from '@tanstack/react-query'
-import { useState } from 'react'
-import { ConfirmToken } from '../../types/auth'
-import { toast } from 'react-toastify'
-import { confirmAccount } from '../../api/AuthApi'
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import ClipLoader from 'react-spinners/ClipLoader';
 
-export default function ConfirmationToken() {
+const ConfirmAccountView: React.FC = () => {
+  const { token } = useParams<{ token: string }>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [message, setMessage] = useState<string>('');
+  const navigate = useNavigate();
 
-    const [token, setToken] = useState<ConfirmToken['token']>('')
-
-    const { mutate } = useMutation({
-        mutationFn: confirmAccount,
-        onError: (error) => {
-            toast.error(error.message)
-        },
-        onSuccess: (data) => {
-            toast.success(data as string)
+  useEffect(() => {
+    const confirmAccount = async () => {
+      try {
+        const url = `${import.meta.env.VITE_API_URL}/auth/confirm/${token}`;
+        const response = await axios.get(url);
+        setMessage(response.data.message);
+        if (response.data.success) {
+          setTimeout(() => {
+            navigate('/auth/establecer-contraseña');
+          }, 2000); // Redirigir después de 2 segundos
         }
-    })
+      } catch (error) {
+        setMessage('Error al confirmar la cuenta. Por favor, inténtalo de nuevo.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    const handleChange = (token : ConfirmToken['token']) => {
-        setToken(token)
+    if (token) {
+      confirmAccount();
     }
-
-    const handleComplete = (token: ConfirmToken['token']) => mutate({token})
+  }, [token, navigate]);
 
   return (
-    <div className=" flex-col items-center justify-center">
-        
-        <div className="p-8 w-full max-w-md">
-
-        <form action="">
-        <div className="mb-4">
-            <h2 className="text-2xl font-bold text-gray-800">Confirma tu Cuenta</h2>
-            <p>Ingresa el código que recibiste por email</p>
-            <div className="flex mt-6 justify-center gap-5">
-            
-            <PinInput value={token} onChange={handleChange} onComplete={handleComplete}>
-                        <PinInputField className="w-10 h-10 p-3 rounded-lg border-gray-300 border placeholder-white" />
-                        <PinInputField className="w-10 h-10 p-3 rounded-lg border-gray-300 border placeholder-white" />
-                        <PinInputField className="w-10 h-10 p-3 rounded-lg border-gray-300 border placeholder-white" />
-                        <PinInputField className="w-10 h-10 p-3 rounded-lg border-gray-300 border placeholder-white" />
-                        <PinInputField className="w-10 h-10 p-3 rounded-lg border-gray-300 border placeholder-white" />
-                        <PinInputField className="w-10 h-10 p-3 rounded-lg border-gray-300 border placeholder-white" />
-                    </PinInput>
-                
-            </div>
-        </div>
-        </form>
-        </div>
-        <Link
-            to='/auth/request-code'
-            className="text-center text-gray-300 font-normal"
-        >
-            Solicitar un nuevo Código
-        </Link>
+    <div className="flex items-center justify-center">
+      <div className=" p-8">
+        <h2 className="text-2xl font-bold mb-4">Confirmación de Cuenta</h2>
+        {loading ? (
+          <ClipLoader size={50} color={"#123abc"} loading={loading} />
+        ) : (
+          <>
+            <p>{message}</p>
+            <button
+              onClick={() => navigate('/auth/establecer-contraseña')}
+              className="mt-4 w-full bg-[#26589e] text-white py-2 rounded-sm hover:bg-[#35a1da] transition duration-300"
+            >
+              Crear Contraseña
+            </button>
+          </>
+        )}
+      </div>
     </div>
+  );
+};
 
-  )
-}
-
+export default ConfirmAccountView;

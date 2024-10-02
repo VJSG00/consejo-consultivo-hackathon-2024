@@ -6,9 +6,9 @@ interface ButtonProps {
     text: string;
   }
 
-export default function DashboardButton({ to, icon, text } : ButtonProps) {
+export default function IconButton({ to, icon, text } : ButtonProps) {
     return (
-        <Link to={to} className="flex items-center  justify-center p-4 bg-[#005d90] text-white rounded-sm shadow-md hover:bg-[#35a1da]">            {icon}
+        <Link to={to} className="transition duration-300 flex items-center  justify-center p-4 bg-[#005d90] text-white rounded-sm shadow-md hover:bg-[#35a1da]">            {icon}
             <span className="ml-2 no-underline">{text}</span>
         </Link>
     );

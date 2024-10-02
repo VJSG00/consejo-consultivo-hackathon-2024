@@ -9,10 +9,10 @@ import {
 const Preguntas = () => {
   return (
     <div>
-      <h1 className="p-5 self-center text-center font-bold">
+      <h1 className="self-center text-center font-bold">
         Preguntas frecuentes
       </h1>
-      <Card className="bg-[#f4f9ff] p-16">
+      <Card className="bg-[#f4f9ff] ">
         <Accordion collapseAll className="outline outline-gray-300">
           <AccordionPanel>
             <AccordionTitle className=" bg-white outline outline-gray-300">

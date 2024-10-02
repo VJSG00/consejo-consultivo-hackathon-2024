@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Paciente from '../models/Paciente.model';
-import { AuthEmail } from '../emails/newAuthEmail';
+import { AuthEmail } from '../emails/AuthEmail';
 import Usuarios from '../models/Usuarios.model';
 import jwt from 'jsonwebtoken';
 
@@ -64,8 +64,8 @@ export const createPaciente = async (req: Request, res: Response) => {
         const role: 'Paciente' = 'Paciente';
         const token = jwt.sign({ email: data.correo, role }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
-        console.log({ email: data.correo, password: '', role })
-        await Usuarios.create({ email: data.correo, password: '', role });
+        //console.log({ email: data.correo, password: '', role })
+        await Usuarios.create({ email: data.correo, password: '', role, idPaciente: data.id })
         await AuthEmail.sendConfirmationEmail({ email: data.correo, name: data.nombreCompleto, token });
 
         res.status(201).json({ data: paciente });

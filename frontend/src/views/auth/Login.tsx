@@ -1,41 +1,56 @@
-import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from "react-router-dom";
-import { useMutation } from '@tanstack/react-query'
+import {jwtDecode} from 'jwt-decode';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from "react-router-dom";
+import { useMutation } from '@tanstack/react-query';
 import { UserLoginForm } from "../../types/auth";
 import ErrorMessage from "../../components/ErrorMessage";
 import { authenticateUser } from "../../api/AuthApi";
 import { toast } from "react-toastify";
 
-
 export default function Login() {
-
   const initialValues: UserLoginForm = {
     email: '',
     password: '',
-  }
-  const { register, handleSubmit, formState: { errors } } = useForm({ defaultValues: initialValues })
-  
-  const navigate = useNavigate()
+  };
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm({ defaultValues: initialValues });
 
-  const { mutate } = useMutation({
+  const navigate = useNavigate();
+
+  const { mutate } = useMutation({
     mutationFn: authenticateUser,
     onError: (error) => {
-      toast.error(error.message)
+      toast.error(error.message);
     },
-    onSuccess: () => {
-      navigate('/')
-    }
-  }) 
+    onSuccess: (data) => {
+      const token = data.token;
+      const decodedToken: { role: string } = jwtDecode(token);
+      const { role } = decodedToken;
 
-  const handleLogin = (formData: UserLoginForm) => mutate(formData)
+      if (role === 'Gestor') {
+        navigate('/dashboard/index');
+      } else if (role === 'Donante') {
+        navigate('/donantes');
+      } else if (role === 'Paciente') {
+        navigate('/pacientes');
+      } else {
+        toast.error('Rol no reconocido');
+      }
+    }
+  });
+
+  const handleLogin = (formData: UserLoginForm) => mutate(formData);
+
+  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const lowercaseValue = event.target.value.toLowerCase();
+    setValue('email', lowercaseValue, { shouldValidate: true });
+  };
 
   return (
-    <div className=" flex items-center justify-center">
+    <div className="flex items-center justify-center">
       <div className="p-8 rounded-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Iniciar Sesión</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-700">Iniciar Sesión</h2>
         
         <form onSubmit={handleSubmit(handleLogin)} noValidate>
-          
           <div className="mb-4">
             <label className="block text-gray-700">Correo electrónico</label>
             <input
@@ -50,6 +65,7 @@ export default function Login() {
                   message: "E-mail no válido",
                 },
               })}
+              onChange={handleEmailChange}
             />
             {errors.email && (
               <ErrorMessage>{errors.email.message}</ErrorMessage>
@@ -73,25 +89,13 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+            className="w-full bg-[#26589e] text-white py-2 rounded-sm hover:bg-[#35a1da] transition duration-300"
           >
             Iniciar Sesión
           </button>
         </form>
-
-        <nav className="mt-10 flex flex-col space-y-4">
-            <Link
-                to={'/auth/register'}
-                className="text-center text-gray-300 font-normal"
-            >¿No tienes cuenta? Crear Una</Link>
-
-            <Link
-                to={'/auth/forgot-password'}
-                className="text-center text-gray-300 font-normal"
-            >¿Olvidaste tu contraseña? Reestablecer</Link>
-        </nav>
-
+        
       </div>
     </div>
   );
-};
+}

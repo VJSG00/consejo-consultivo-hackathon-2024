@@ -4,17 +4,15 @@ import db from './config/db'
 import colors from 'colors'
 import cors, {CorsOptions} from 'cors'
 import morgan from 'morgan'
-import SwaggerUi from 'swagger-ui-express'
-import swaggerSpec from './config/swagger'
-//import mongodb
-//import {connectMongoDB} from './config/db'
+//import SwaggerUi from 'swagger-ui-express'
+//import swaggerSpec from './config/swagger'
 import dotenv from 'dotenv'
 // Login Register and Auth
-import authRoutes from './routes/authRoutes'
-import newRouter from './routes/newRouter'
+import newRouter from './routes/router'
 import Dashrouter from './controllers/DashBoards/Dashboard1'
 
-import newAuthRouter from './routes/newAuthRouter'
+import newAuthRouter from './routes/AuthRouter'
+import AuthRouter from './routes/AuthRouter'
 
 //Variables de entorno para cors.
 dotenv.config()
@@ -66,7 +64,7 @@ server.use(morgan('dev'));
 server.use('/api', router)
 
 //Router de Autenticación
-server.use('/api/auth', newAuthRouter)
+server.use('/api/auth', AuthRouter)
 
 //Router de Roles
 server.use('/api', newRouter)

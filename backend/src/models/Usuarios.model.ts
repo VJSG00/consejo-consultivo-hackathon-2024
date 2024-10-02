@@ -1,4 +1,6 @@
-import { Table, Column, Model, DataType, BeforeSave } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, BeforeSave, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import Paciente from './Paciente.model';
+import Donante from './Donante.model';
 
 @Table({
     tableName: 'Users',
@@ -30,6 +32,26 @@ class Usuarios extends Model {
         allowNull: false
     })
     confirmed!: boolean;
+
+    @ForeignKey(() => Paciente)
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: true,
+    })
+    idPaciente!: number | null;
+
+    @BelongsTo(() => Paciente)
+    paciente!: Paciente;
+
+    @ForeignKey(() => Donante)
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: true,
+    })
+    idDonante!: number | null;
+
+    @BelongsTo(() => Donante)
+    donante!: Donante;
 
     @BeforeSave
     static async lowerCaseEmail(user: Usuarios) {

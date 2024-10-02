@@ -2,8 +2,8 @@ import { Card, HRTrimmed } from "flowbite-react";
 
 const Services = () => {
   return (
-    <div className="bg-[#f4f9ff]">
-      <Card className="bg-[#f4f9ff]">
+    <div>
+      <Card >
         <div className="flex flex-col justify-center items-center">
           <h1 className="p-5">Misión</h1>
           <p className="text-gray-500">

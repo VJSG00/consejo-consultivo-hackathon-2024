@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Donante from '../models/Donante.model';
 import Usuarios from '../models/Usuarios.model';
-import { AuthEmail } from '../emails/newAuthEmail';
+import { AuthEmail } from '../emails/AuthEmail';
 import jwt from 'jsonwebtoken';
 
 export const getDonantes = async (req: Request, res: Response) => {
@@ -62,7 +62,7 @@ export const createDonante = async (req: Request, res: Response) => {
         const role: 'Donante' = 'Donante';
         const token = jwt.sign({ email: data.correo, role }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
-        await Usuarios.create({ email: data.correo, password: '', role, donanteCorreo: data.correo });
+        await Usuarios.create({ email: data.correo, password: '', role, idDonante: data.id });
         await AuthEmail.sendConfirmationEmail({ email: data.correo, name: data.nombre, token });
 
         res.status(201).json({ data: donante });

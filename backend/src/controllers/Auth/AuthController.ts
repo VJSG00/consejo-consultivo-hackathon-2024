@@ -1,213 +1,131 @@
-import type {Request, Response} from 'express'
-import User from '../../modelsDB/User'
-import { hashPassword, checkPassword } from '../../utils/auth'
-import Token from '../../modelsDB/Token'
-import { generateToken } from '../../utils/token'
-import { AuthEmail } from '../../emails/AuthEmail'
-import { generateJWT } from '../../utils/jwt'
+import { Request, Response } from 'express';
+import Usuarios from '../../models/Usuarios.model';
+import { hashPassword } from '../../utils/auth';
+import { checkPassword } from '../../utils/auth';
+import { generateJWT } from '../../utils/jwt';
+import { AuthEmail } from '../../emails/AuthEmail';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import Paciente from '../../models/Paciente.model';
+import Donante from '../../models/Donante.model';
 
-export class AuthController {
+export const createGestor = async (req: Request, res: Response) => {
+    try {
+        const { email, name, password } = req.body;
+        const role: 'Gestor' = 'Gestor';
+        const token = jwt.sign({ email, role }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
-    static CreateAccount = async (req: Request, res: Response) => {
-        try {
-            const {password, email} = req.body
-            const user = new User(req.body)
-            
-            // Prevenir duplicados
-            const userExists = await User.findOne({ email })
-            if (userExists) {
-                const error = new Error('El Usuario ya esta registrado')
-                return res.status(409).json({ error: error.message })
-            }
+        await Usuarios.create({ email: email.toLowerCase(), password:'', role });
+        await AuthEmail.sendConfirmationEmail({ email, name, token });
 
-            //Hash Password
-            user.password = await hashPassword(password)
-            
-            // Generar el token
-            const token = new Token()
-            token.token = generateToken()
-            token.user = user.id
+        res.status(201).json({ message: 'Gestor creado correctamente' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
-            //Auth email
-            AuthEmail.sendConfirmationEmail({
-                email: user.email,
-                name: user.name,
-                token: token.token
-            })
 
-            // Guardar en DB
-            await Promise.allSettled([user.save(), token.save()])
-            
-            res.send("Cuenta creada, revisa tu email para confirmarla")
-        } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+
+export const confirmToken = async (req: Request, res: Response) => {
+    const { token } = req.params;
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET) as { email: string, role: string };
+        const user = await Usuarios.findOne({ where: { email: decoded.email } });
+
+        if (!user) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
         }
+
+        // Actualizar la propiedad confirmed a true
+        await Usuarios.update({ confirmed: true }, { where: { email: decoded.email } });
+
+        res.status(200).json({ message: 'Token válido y usuario confirmado', email: decoded.email, role: decoded.role });
+    } catch (error) {
+        res.status(400).json({ error: 'Token inválido o expirado' });
+    }
+};
+
+
+
+// Establecer contraseña de una cuenta confirmada.
+export const setPassword = async (req: Request, res: Response) => {
+    const { email, password, confirmPassword } = req.body;
+
+    // Verificar que las contraseñas coincidan
+    if (password !== confirmPassword) {
+        return res.status(400).json({ error: 'Las contraseñas no coinciden' });
     }
 
-    static confirmAccount = async (req: Request, res: Response) => {
-        try {
-            const { token } = req.body
-
-            const tokenExists = await Token.findOne({ token })
-            if (!tokenExists) {
-                const error = new Error('Token no válido')
-                return res.status(404).json({ error: error.message })
-            }
-
-            const user = await User.findById(tokenExists.user)
-            user.confirmed = true
-
-            await Promise.allSettled([user.save(), tokenExists.deleteOne()])
-            res.send('Cuenta confirmada correctamente')
-        } catch (error) {
-            res.status(500).json({ error: 'Hubo un error' })
+    try {
+        const user = await Usuarios.findOne({ where: { email } });
+        const data = user.dataValues
+        // Verificar que la cuenta esté confirmada
+        if (!data || !data.confirmed) {
+            return res.status(400).json({ error: 'La cuenta no está confirmada' });
         }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await Usuarios.update({ password: hashedPassword }, { where: { email } });
+
+        res.status(200).json({ message: 'Contraseña establecida correctamente' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
+};
 
-    static login = async (req: Request, res: Response) => {
-        try {
-            
-            const { email, password } = req.body
-            const user = await User.findOne({ email })
-            if (!user) {
-                const error = new Error('Usuario no encontrado')
-                return res.status(404).json({ error: error.message })
-            }
+export const login = async (req: Request, res: Response) => {
+    const { email, password } = req.body;
 
-            
-            if (!user.confirmed) {
-                const token = new Token()
-                token.user = user.id
-                token.token = generateToken()
-                await token.save()
+    try {
+        const user = await Usuarios.findOne({ where: { email }, include: [Paciente, Donante] });
+        const data = user?.dataValues;
 
-                // enviar el email
-                AuthEmail.sendConfirmationEmail({
-                    email: user.email,
-                    name: user.name,
-                    token: token.token
-                })
-
-                const error = new Error('La cuenta no ha sido confirmada, hemos enviado un e-mail de confirmación')
-                return res.status(401).json({ error: error.message })
-            }
-
-            // Revisar password
-            const isPasswordCorrect = await checkPassword(password, user.password)
-            if(!isPasswordCorrect) {
-                const error = new Error('Password Incorrecto')
-                return res.status(401).json({ error: error.message })
-            }
-            
-            const token = generateJWT({id: user.id})
-
-            res.send(token)
-
-        } catch (error) {
-            res.status(500).json({error: 'Hubo un error'})
+        // Verificar que el usuario exista y la cuenta esté confirmada
+        if (!data || !data.confirmed) {
+            return res.status(400).json({ error: 'La cuenta no está confirmada o el usuario no existe' });
         }
-    }
 
-    static requestConfirmationCode = async (req: Request, res: Response) => {
-        try {
-            const { email } = req.body
-
-            // Verificamos que el usuario existe
-            const user = await User.findOne({ email })
-            if (!user) {
-                const error = new Error('El Usuario no esta registrado')
-                return res.status(404).json({ error: error.message })
-            }
-
-            if(user.confirmed) {
-                const error = new Error('El Usuario ya esta confirmado')
-                return res.status(403).json({ error: error.message })
-            }
-
-            // Generar el token
-            const token = new Token()
-            token.token = generateToken()
-            token.user = user.id
-
-            // enviar el email
-            AuthEmail.sendConfirmationEmail({
-                email: user.email,
-                name: user.name,
-                token: token.token
-            })
-
-            await Promise.allSettled([user.save(), token.save()])
-
-            res.send('Se envió un nuevo token a tu e-mail')
-        } catch (error) {
-            res.status(500).json({ error: 'Hubo un error' })
+        // Verificar la contraseña
+        const isMatch = await bcrypt.compare(password, data.password);
+        if (!isMatch) {
+            return res.status(400).json({ error: 'Contraseña incorrecta' });
         }
+
+        // Generar el token JWT incluyendo el rol del usuario y las nuevas propiedades
+        const token = jwt.sign(
+            { id: data.id, role: data.role, email: data.email, idPaciente: data.idPaciente, idDonante: data.idDonante },
+            process.env.JWT_SECRET!,
+            { expiresIn: '24h' }
+        );
+
+        res.status(200).json({ message: 'Inicio de sesión exitoso', token });
+    } catch (error) {
+        res.status(500).json({ error: error});
     }
+};
 
-    static forgotPassword = async (req: Request, res: Response) => {
-        try {
-            const { email } = req.body
+// export class AuthController {
 
-            // Usuario existe
-            const user = await User.findOne({ email })
-            if (!user) {
-                const error = new Error('El Usuario no esta registrado')
-                return res.status(404).json({ error: error.message })
-            }
+//     static login = async (req: Request, res: Response) => {
+//         try {
+//             const { email, password } = req.body;
+//             const user = await Usuarios.findOne({ where: { email } });
+//             if (!user) {
+//                 return res.status(404).json({ error: 'Usuario no encontrado' });
+//             }
 
-            // Generar el token
-            const token = new Token()
-            token.token = generateToken()
-            token.user = user.id
-            await token.save()
+//             const isPasswordCorrect = await checkPassword(password, user.password);
+//             if (!isPasswordCorrect) {
+//                 return res.status(401).json({ error: 'Password Incorrecto' });
+//             }
 
-            // enviar el email
-            AuthEmail.sendPasswordResetToken({
-                email: user.email,
-                name: user.name,
-                token: token.token
-            })
-            res.send('Revisa tu email para instrucciones')
-        } catch (error) {
-            res.status(500).json({ error: 'Hubo un error' })
-        }
-    }
+//             const token = generateJWT({ id: user.id, role: user.role });
+//             res.send({ token });
+//         } catch (error) {
+//             res.status(500).json({ error: 'Hubo un error' });
+//         }
+//     }
+// }
 
-    static validateToken = async (req: Request, res: Response) => {
-        try {
-            const { token } = req.body
 
-            const tokenExists = await Token.findOne({ token })
-            if (!tokenExists) {
-                const error = new Error('Token no válido')
-                return res.status(404).json({ error: error.message })
-            }
-            res.send('Token válido, Define tu nuevo password')
-        } catch (error) {
-            res.status(500).json({ error: 'Hubo un error' })
-        }
-    }
-
-    static updatePasswordWithToken = async (req: Request, res: Response) => {
-        try {
-            const { token } = req.params
-            const { password } = req.body
-
-            const tokenExists = await Token.findOne({ token })
-            if (!tokenExists) {
-                const error = new Error('Token no válido')
-                return res.status(404).json({ error: error.message })
-            }
-
-            const user = await User.findById(tokenExists.user)
-            user.password = await hashPassword(password)
-
-            await Promise.allSettled([user.save(), tokenExists.deleteOne()])
-
-            res.send('El password se modificó correctamente')
-        } catch (error) {
-            res.status(500).json({ error: 'Hubo un error' })
-        }
-    }
-
-}

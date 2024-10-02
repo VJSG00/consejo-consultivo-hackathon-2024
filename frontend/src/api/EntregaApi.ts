@@ -1,9 +1,6 @@
 // api/EntregaApi.ts
 import axios from 'axios';
-import { z } from 'zod';
 import { EntregaSchema, EntregasSchema, Entrega } from '../types/entregas';
-import { Donante } from '../types/donante';
-import { Medicamento } from '../types/medicamento';
 
 export async function getEntregas() {
     try {
@@ -55,18 +52,34 @@ export async function deleteEntrega(id: Entrega['id']) {
     }
 }
 
+// export async function createFullEntrega(data: {
+//     entregaData: Partial<Entrega>;
+//     donanteData: Partial<Donante>;
+//     medicamentosData: Partial<Medicamento>[];
+//     cantidadUnidades: number[];
+// }) {
+//     try {
+//         const url = `${import.meta.env.VITE_API_URL}/create-full-entrega`;
+//         const response = await axios.post(url, data);
+//         return response.data;
+//     } catch (error) {
+//         console.error(error);
+//         throw new Error('Error al crear la entrega completa');
+//     }
+// }
+
 export async function createFullEntrega(data: {
-    entregaData: Partial<Entrega>;
-    donanteData: Partial<Donante>;
-    medicamentosData: Partial<Medicamento>[];
-    cantidadUnidades: number[];
-}) {
+    idPaciente: number;
+    nombreMedicamento: string;
+    cantidad: number;
+  }) {
     try {
-        const url = `${import.meta.env.VITE_API_URL}/create-full-entrega`;
-        const response = await axios.post(url, data);
-        return response.data;
+      const url = `${import.meta.env.VITE_API_URL}/asignar-medicamentos`;
+      const response = await axios.put(url, data);
+      console.log(response.data)
+      return response.data;
     } catch (error) {
-        console.error(error);
-        throw new Error('Error al crear la entrega completa');
+      console.error(error);
+      throw new Error('Error al crear la entrega completa');
     }
-}
+  }

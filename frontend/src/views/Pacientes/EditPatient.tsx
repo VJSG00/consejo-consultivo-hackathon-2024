@@ -1,10 +1,8 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, Link, useFetcher, useLoaderData, useNavigate, redirect, Form, useActionData } from 'react-router-dom';
+import { ActionFunctionArgs, LoaderFunctionArgs, Link, useLoaderData, redirect, Form, useActionData } from 'react-router-dom';
 import { getPacienteById, updatePaciente, deletePaciente } from '../../api/PacienteApi';
 import { Paciente } from '../../types/paciente';
 import ErrorMessage from '../../components/ErrorMessage';
 import PatientForm from '../../components/Forms/PatientForm';
-import Spinner from '../../components/Spinner';
-
 // Loader para obtener un paciente por ID
 export async function loader({ params }: LoaderFunctionArgs) {
   if (params.id !== undefined) {
@@ -38,7 +36,7 @@ export async function actionUpdate({ request, params }: ActionFunctionArgs) {
     direccion: formData.direccion as string,
     telefono: formData.telefono as string,
     correo: formData.correo as string,
-    identificador: formData.identificador as 'cedula' | 'p. nacimiento',
+    identificador: formData.identificador as 'cedula' | 'p.nacimiento',
     cedula: formData.cedula as string,
     partidaNacimiento: formData.partidaNacimiento as string,
     antecedentes: (formData.antecedentes as string).split(','),
@@ -48,7 +46,6 @@ export async function actionUpdate({ request, params }: ActionFunctionArgs) {
     prioridad: formData.prioridad === 'true',
     periodoTratamiento: formData.periodoTratamiento as string,
     observaciones: formData.observaciones as string,
-    entregas: (formData.entregas as string).split(',').map(Number)
   };
 
   if (params.id !== undefined) {
@@ -86,7 +83,7 @@ export default function EditPatient() {
             to='/'
             className='rounded-md p-3 bg-indigo-600 text-sm font-bold text-white shadow-sm hover:bg-indigo-500'
           >
-            Volver a productos
+            Volver a pacientes
           </Link>
           <Form
             method='POST'

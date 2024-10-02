@@ -8,7 +8,7 @@ interface TableStatsProps {
 const TableStats: React.FC<TableStatsProps> = ({ title, data }) => (
   <div className="container mx-auto bg-white shadow-xl">
     <div className="w-max-80 mx-auto">
-      <div className="bg-white my-6">
+      <div className="bg-white">
         <table className="text-left w-full border-collapse">
           <thead>
             <tr>

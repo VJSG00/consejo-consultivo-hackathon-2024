@@ -33,7 +33,13 @@ class InventarioMensual extends Model {
         type: DataType.STRING,
         allowNull: false
     })
-    club!: string;
+    marca!: string;
+
+    @Column({
+        type: DataType.ARRAY(DataType.STRING),
+        allowNull: true,
+    })
+    club!: string[];
 }
 
 export default InventarioMensual;

@@ -11,7 +11,7 @@ const PieChartComponent: React.FC<PieChartComponentProps> = ({ data }) => (
   <ResponsiveContainer width="100%" height={300}>
     <PieChart>
       <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} innerRadius={60} fill="#8884d8">
-        {data.map((entry, index) => (
+        {data.map((_entry, index) => (
           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
         ))}
       </Pie>

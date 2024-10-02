@@ -23,7 +23,7 @@ export default function PacienteForm({ paciente }: PacienteFormProps) {
                 <input
                     id="fechaNacimiento"
                     type="date"
-                    className="mt-2 block w-full p-3 bg-gray-50"
+                    className="mt-2 block w-full p-3 bg-gray-50 custom-date-input"
                     name="fechaNacimiento"
                     defaultValue={paciente?.fechaNacimiento}
                 />
@@ -34,7 +34,7 @@ export default function PacienteForm({ paciente }: PacienteFormProps) {
                     id="genero"
                     type="text"
                     className="mt-2 block w-full p-3 bg-gray-50"
-                    placeholder="Ingrese el Género"
+                    placeholder="Masculino o Femenino"
                     name="genero"
                     defaultValue={paciente?.genero}
                 />
@@ -81,7 +81,7 @@ export default function PacienteForm({ paciente }: PacienteFormProps) {
                     defaultValue={paciente?.identificador}
                 >
                     <option value="cedula">Cédula</option>
-                    <option value="p. nacimiento">Partida de Nacimiento</option>
+                    <option value="p.nacimiento">Partida de Nacimiento</option>
                 </select>
             </div>
             <div className="mb-4">
@@ -114,7 +114,7 @@ export default function PacienteForm({ paciente }: PacienteFormProps) {
                     className="mt-2 block w-full p-3 bg-gray-50"
                     placeholder="Ingrese los Antecedentes"
                     name="antecedentes"
-                    defaultValue={paciente?.antecedentes.join(', ')}
+                    defaultValue={paciente?.antecedentes.join(', ') ?? ''}
                 />
             </div>
             <div className="mb-4">
@@ -125,7 +125,7 @@ export default function PacienteForm({ paciente }: PacienteFormProps) {
                     className="mt-2 block w-full p-3 bg-gray-50"
                     placeholder="Ingrese las Enfermedades Crónicas"
                     name="enfermedadesCronicas"
-                    defaultValue={paciente?.enfermedadesCronicas.join(', ')}
+                    defaultValue={paciente?.enfermedadesCronicas.join(', ') ?? ''}
                 />
             </div>
             <div className="mb-4">
@@ -136,7 +136,7 @@ export default function PacienteForm({ paciente }: PacienteFormProps) {
                     className="mt-2 block w-full p-3 bg-gray-50"
                     placeholder="Ingrese los Medicamentos Básicos"
                     name="medicamentosBasicos"
-                    defaultValue={paciente?.medicamentosBasicos.join(', ')}
+                    defaultValue={paciente?.medicamentosBasicos.join(', ') ?? ''}
                 />
             </div>
             <div className="mb-4">
@@ -147,42 +147,84 @@ export default function PacienteForm({ paciente }: PacienteFormProps) {
                     className="mt-2 block w-full p-3 bg-gray-50"
                     placeholder="Ingrese los Medicamentos Esenciales"
                     name="medicamentosEsenciales"
-                    defaultValue={paciente?.medicamentosEsenciales.join(', ')}
+                    defaultValue={paciente?.medicamentosEsenciales.join(', ') ?? ''}
                 />
             </div>
             <div className="mb-4">
                 <label className="text-gray-800" htmlFor="prioridad">Prioridad:</label>
-                <select
+                <input
                     id="prioridad"
-                    className="mt-2 block w-full p-3 bg-gray-50"
+                    type="checkbox"
+                    className="mt-2 block"
                     name="prioridad"
-                    defaultValue={paciente?.prioridad.toString()}
-                >
-                    <option value="true">Sí</option>
-                    <option value="false">No</option>
-                </select>
+                    defaultChecked={paciente?.prioridad ?? false}
+                />
             </div>
             <div className="mb-4">
                 <label className="text-gray-800" htmlFor="periodoTratamiento">Periodo de Tratamiento:</label>
                 <input
                     id="periodoTratamiento"
-                    type="datetime-local"
-                    className="mt-2 block w-full p-3 bg-gray-50"
+                    type="date"
+                    className="mt-2 block w-full p-3 bg-gray-50 custom-date-input"
                     name="periodoTratamiento"
-                    defaultValue={paciente?.periodoTratamiento ?? ''}
+                    defaultValue={paciente?.periodoTratamiento}
                 />
             </div>
             <div className="mb-4">
                 <label className="text-gray-800" htmlFor="observaciones">Observaciones:</label>
-                <input
+                <textarea
                     id="observaciones"
-                    type="text"
                     className="mt-2 block w-full p-3 bg-gray-50"
                     placeholder="Ingrese las Observaciones"
                     name="observaciones"
                     defaultValue={paciente?.observaciones ?? ''}
                 />
             </div>
-        </>
-    );
+            <div className="mb-4">
+                <label className="text-gray-800" htmlFor="comunidad">Comunidad:</label>
+                <input
+                    id="comunidad"
+                    type="text"
+                    className="mt-2 block w-full p-3 bg-gray-50"
+                    placeholder="Ingrese la Comunidad"
+                    name="comunidad"
+                    defaultValue={paciente?.comunidad}
+                />
+            </div>
+            <div className="mb-4">
+                <label className="text-gray-800" htmlFor="tipoComunidad">Tipo de Comunidad:</label>
+                <input
+                    id="tipoComunidad"
+                    type="text"
+                    className="mt-2 block w-full p-3 bg-gray-50"
+                    placeholder="Urbana, Rural o Suburbana"
+                    name="tipoComunidad"
+                    defaultValue={paciente?.tipoComunidad}
+                />
+            </div>
+            <div className="mb-4">
+                <label className="text-gray-800" htmlFor="tipoVivienda">Tipo de Vivienda:</label>
+                <input
+                    id="tipoVivienda"
+                    type="text"
+                    className="mt-2 block w-full p-3 bg-gray-50"
+                    placeholder="Propia, Alquiler, ViviendaSocial, Precaria"
+                    name="tipoVivienda"
+                    defaultValue={paciente?.tipoVivienda}
+                />
+            </div>
+            <div className="mb-4">
+                <label className="text-gray-800" htmlFor="status">Status:</label>
+                <input
+                    id="status"
+                    type="text"
+                    className="mt-2 block w-full p-3 bg-gray-50"
+                    placeholder="Activo, No Activo, Fallecido"
+                    name="status"
+                    defaultValue={paciente?.status}
+                />
+            </div>
+
+            </>
+    )
 }

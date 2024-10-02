@@ -1,4 +1,4 @@
-import { Link, Form, useActionData, ActionFunctionArgs, redirect } from 'react-router-dom';
+import { Link, Form, useActionData, ActionFunctionArgs } from 'react-router-dom';
 import { createMedicine } from '../../api/MedicineApi';
 import { Medicamento } from '../../types/medicamento';
 import MedicineForm from '../../components/Forms/MedicineForm';

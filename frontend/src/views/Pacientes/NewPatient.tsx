@@ -4,19 +4,14 @@ import ErrorMessage from '../../components/ErrorMessage';
 import PatientForm from '../../components/Forms/PatientForm';
 import Spinner from '../../components/Spinner';
 import { createPaciente } from '../../api/PacienteApi';
-import { Paciente } from '../../types/paciente';
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = Object.fromEntries(await request.formData());
 
-  // Validación en el cliente
-  if (Object.values(formData).includes('')) {
-    return { error: 'Todos los campos son obligatorios' };
-  }
 
   await createPaciente(formData);
 
-  return redirect('/');
+  return redirect('/dashboard/index/pacientes');
 }
 
 export default function NewPatient() {
@@ -27,7 +22,20 @@ export default function NewPatient() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await action({ request: e.currentTarget as unknown as Request, params: {} });
+      const formData = new FormData(e.currentTarget as HTMLFormElement);
+      const data = Object.fromEntries(formData.entries());
+
+      await createPaciente(data);
+
+      //window.location.href = '/dashboard/index/pacientes';
+    } catch (error) {
+      console.error('Error al registrar el paciente:', error);
+      if (Notification.permission === "granted") {
+        new Notification('Error', {
+          body: 'Error al registrar el paciente. Por favor, inténtelo de nuevo.',
+          icon: 'path/to/error-icon.png' // Opcional: ruta a un icono de error
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -37,11 +45,12 @@ export default function NewPatient() {
     <>
       <div className='flex justify-between'>
         <h2 className='text-4xl font-black text-slate-500'>Registrar paciente</h2>
+        <div className="border-t-2 border-gray-300 my-4"></div>
         <Link
-          to='/'
-          className='rounded-md p-3 bg-indigo-600 text-sm font-bold text-white shadow-sm hover:bg-indigo-500'
+          to='/dashboard/index/pacientes'
+          className='rounded-sm p-3 bg-[#005d90] hover:bg-[#35a1da] text-sm font-bold text-white shadow-sm'
         >
-          Volver a productos
+          Volver a pacientes
         </Link>
       </div>
 
@@ -54,7 +63,7 @@ export default function NewPatient() {
           <PatientForm />
           <input
             type="submit"
-            className="mt-5 w-full bg-indigo-600 p-2 text-white font-bold text-lg cursor-pointer rounded"
+            className="mt-5 w-full bg-[#005d90] hover:bg-[#35a1da] p-2 text-white font-bold text-lg cursor-pointer rounded-sm"
             value="Registrar Paciente"
           />
         </Form>

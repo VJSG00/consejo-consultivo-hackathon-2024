@@ -37,7 +37,7 @@ class Paciente extends Model {
     correo!: string;
 
     @Column({
-        type: DataType.ENUM('cedula', 'p. nacimiento'),
+        type: DataType.ENUM('cedula', 'p.nacimiento'),
         allowNull: false
     })
     identificador!: string;

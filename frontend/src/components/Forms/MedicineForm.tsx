@@ -1,77 +1,104 @@
 import { Medicamento } from "../../types/medicamento";
 
-type MedicineFormProps = {
-    medicine?: Medicamento;
+type MedicamentoFormProps = {
+    medicamento?: Medicamento;
 }
 
-export default function MedicineForm({ medicine }: MedicineFormProps) {
+export default function MedicamentoForm({ medicamento }: MedicamentoFormProps) {
     return (
         <>
             <div className="mb-4">
-                <label className="text-gray-800" htmlFor="nombre">Nombre del Medicamento:</label>
-                <input
-                    id="nombre"
-                    type="text"
-                    className="mt-2 block w-full p-3 bg-gray-50"
-                    placeholder="Ingrese el Nombre"
-                    name="nombre"
-                    defaultValue={medicine?.nombre}
-                />
-            </div>
-            <div className="mb-4">
-                <label className="text-gray-800" htmlFor="idDonante">ID del Donante:</label>
+                <label className="text-gray-800" htmlFor="idDonante">ID Donante:</label>
                 <input
                     id="idDonante"
                     type="number"
                     className="mt-2 block w-full p-3 bg-gray-50"
                     placeholder="Ingrese el ID del Donante"
                     name="idDonante"
-                    defaultValue={medicine?.idDonante}
+                    defaultValue={medicamento?.idDonante}
                 />
             </div>
             <div className="mb-4">
-                <label className="text-gray-800" htmlFor="idPaciente">ID del Paciente:</label>
+                <label className="text-gray-800" htmlFor="idPaciente">ID Paciente:</label>
                 <input
                     id="idPaciente"
                     type="number"
                     className="mt-2 block w-full p-3 bg-gray-50"
                     placeholder="Ingrese el ID del Paciente"
                     name="idPaciente"
-                    defaultValue={medicine?.idPaciente ?? ''}
+                    defaultValue={medicamento?.idPaciente ?? ''}
+                />
+            </div>
+            <div className="mb-4">
+                <label className="text-gray-800" htmlFor="nombre">Nombre:</label>
+                <input
+                    id="nombre"
+                    type="text"
+                    className="mt-2 block w-full p-3 bg-gray-50"
+                    placeholder="Ingrese el Nombre del Medicamento"
+                    name="nombre"
+                    defaultValue={medicamento?.nombre}
                 />
             </div>
             <div className="mb-4">
                 <label className="text-gray-800" htmlFor="esencial">Esencial:</label>
-                <select
+                <input
                     id="esencial"
-                    className="mt-2 block w-full p-3 bg-gray-50"
+                    type="checkbox"
+                    className="mt-2 block"
                     name="esencial"
-                    defaultValue={medicine?.esencial.toString()}
-                >
-                    <option value="true">Sí</option>
-                    <option value="false">No</option>
-                </select>
+                    defaultChecked={medicamento?.esencial ?? false}
+                />
             </div>
             <div className="mb-4">
                 <label className="text-gray-800" htmlFor="insumo">Insumo:</label>
-                <select
+                <input
                     id="insumo"
-                    className="mt-2 block w-full p-3 bg-gray-50"
+                    type="checkbox"
+                    className="mt-2 block"
                     name="insumo"
-                    defaultValue={medicine?.insumo.toString()}
-                >
-                    <option value="true">Sí</option>
-                    <option value="false">No</option>
-                </select>
+                    defaultChecked={medicamento?.insumo ?? false}
+                />
             </div>
             <div className="mb-4">
-                <label className="text-gray-800" htmlFor="fechaRetiro">Fecha de Retiro:</label>
+                <label className="text-gray-800" htmlFor="fechaPaciente">Fecha Paciente:</label>
                 <input
-                    id="fechaRetiro"
-                    type="datetime-local"
+                    id="fechaPaciente"
+                    type="date"
                     className="mt-2 block w-full p-3 bg-gray-50"
-                    name="fechaRetiro"
-                    defaultValue={medicine?.fechaRetiro}
+                    name="fechaPaciente"
+                    defaultValue={medicamento?.fechaPaciente ?? ''}
+                />
+            </div>
+            <div className="mb-4">
+                <label className="text-gray-800" htmlFor="fechaVencimiento">Fecha de Vencimiento:</label>
+                <input
+                    id="fechaVencimiento"
+                    type="date"
+                    className="mt-2 block w-full p-3 bg-gray-50"
+                    name="fechaVencimiento"
+                    defaultValue={medicamento?.fechaVencimiento}
+                />
+            </div>
+            <div className="mb-4">
+                <label className="text-gray-800" htmlFor="tipo">Tipo:</label>
+                <input
+                    id="tipo"
+                    type="text"
+                    className="mt-2 block w-full p-3 bg-gray-50"
+                    placeholder="Ingrese los Tipos (separados por comas)"
+                    name="tipo"
+                    defaultValue={medicamento?.tipo.join(', ') ?? ''}
+                />
+            </div>
+            <div className="mb-4">
+                <label className="text-gray-800" htmlFor="devuelto">Devuelto:</label>
+                <input
+                    id="devuelto"
+                    type="checkbox"
+                    className="mt-2 block"
+                    name="devuelto"
+                    defaultChecked={medicamento?.devuelto ?? false}
                 />
             </div>
             <div className="mb-4">
@@ -82,17 +109,17 @@ export default function MedicineForm({ medicine }: MedicineFormProps) {
                     className="mt-2 block w-full p-3 bg-gray-50"
                     placeholder="Ingrese la Presentación"
                     name="presentacion"
-                    defaultValue={medicine?.presentacion}
+                    defaultValue={medicamento?.presentacion}
                 />
             </div>
             <div className="mb-4">
-                <label className="text-gray-800" htmlFor="fechaEntrega">Fecha de Entrega:</label>
+                <label className="text-gray-800" htmlFor="fechaDonante">Fecha Donante:</label>
                 <input
-                    id="fechaEntrega"
-                    type="datetime-local"
+                    id="fechaDonante"
+                    type="date"
                     className="mt-2 block w-full p-3 bg-gray-50"
-                    name="fechaEntrega"
-                    defaultValue={medicine?.fechaEntrega}
+                    name="fechaDonante"
+                    defaultValue={medicamento?.fechaDonante}
                 />
             </div>
             <div className="mb-4">
@@ -102,7 +129,29 @@ export default function MedicineForm({ medicine }: MedicineFormProps) {
                     className="mt-2 block w-full p-3 bg-gray-50"
                     placeholder="Ingrese las Observaciones"
                     name="observaciones"
-                    defaultValue={medicine?.observaciones ?? ''}
+                    defaultValue={medicamento?.observaciones ?? ''}
+                />
+            </div>
+            <div className="mb-4">
+                <label className="text-gray-800" htmlFor="marca">Marca:</label>
+                <input
+                    id="marca"
+                    type="text"
+                    className="mt-2 block w-full p-3 bg-gray-50"
+                    placeholder="Ingrese la Marca"
+                    name="marca"
+                    defaultValue={medicamento?.marca}
+                />
+            </div>
+            <div className="mb-4">
+                <label className="text-gray-800" htmlFor="precio">Precio:</label>
+                <input
+                    id="precio"
+                    type="number"
+                    className="mt-2 block w-full p-3 bg-gray-50"
+                    placeholder="Ingrese el Precio"
+                    name="precio"
+                    defaultValue={medicamento?.precio}
                 />
             </div>
         </>

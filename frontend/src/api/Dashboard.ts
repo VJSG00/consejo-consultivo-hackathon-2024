@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { z } from 'zod';
 import { DashboardDataSchema } from '../types/Dashboard/Dashboard1';
 
 export async function getDashboardData() {

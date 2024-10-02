@@ -1,6 +1,5 @@
 // types/entrega.ts
 import { z } from 'zod';
-import { MedicamentoSchema } from './medicamento';
 
 export const EntregaSchema = z.object({
     id: z.number(),
