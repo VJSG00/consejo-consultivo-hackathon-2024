@@ -33,7 +33,7 @@ const Home = () => {
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link to="/contacto">
-                <button className="py-2 rounded-lg bg-[#005d90] hover:bg-[#35a1da]">Contacto</button>
+                <button className="py-2 rounded-sm bg-[#005d90] hover:bg-[#35a1da] transition duration-150">Contacto</button>
               </Link>
               <Link to="/info">
                 <a className="text-sm font-semibold leading-6 text-gray-900">

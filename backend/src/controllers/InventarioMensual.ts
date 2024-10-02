@@ -37,6 +37,7 @@ export const populateInventarioMensual = async (req: Request, res: Response) => 
                 recibidas: Data.cantidad, 
                 demanda: Data.demanda,
                 esencial: Data.esencial,
+                marca: Data.marca,
                 club: Data.club
             });
             console.log(`InventarioMensual creado para medicamento ${Data.nombreMedicamento}`);

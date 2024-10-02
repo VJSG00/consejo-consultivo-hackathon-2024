@@ -1,76 +1,67 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import Fuse from 'fuse.js';
-import { populateInventarioActual } from '../api/InventarioApi';
-import { Inventario } from '../types/inventariosActual';
+import { useFetcher, useLoaderData, ActionFunction, Link } from "react-router-dom";
+import { getInventarioActual, populateInventarioActual } from "../api/InventarioApi";
+import PaginatedTable from "../components/Tablas/PaginatedTableProps";
+import { Inventario } from "../types/inventariosActual";
 
-const InventarioActualTable = () => {
-  const { data: inventario, error, isLoading } = useQuery({
-    queryKey: ['inventarioActual'],
-    queryFn: populateInventarioActual,
-  });
-  const [searchTerm, setSearchTerm] = useState('');
+// Loader para obtener el inventario mensual
+export async function loader() {
+  const inventario = await getInventarioActual();
+  return inventario;
+}
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
-  const fuse = new Fuse(inventario!, {
-    keys: ['nombreMedicamento', 'club', 'marca'],
-  });
-
-  const filteredInventario = searchTerm ? fuse.search(searchTerm).map(result => result.item) : inventario;
-
-  return (
-    <div className="m-12">
-      <button
-        onClick={populateInventarioActual}
-        className="mb-4 p-2 bg-[#005d90] text-white rounded"
-      >
-        Populate Inventario Actual
-      </button>
-      <input
-        type="text"
-        placeholder="Buscar en inventario..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4 p-2 border border-gray-300 rounded"
-      />
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-[#005d90] text-white">
-          <tr>
-            <th>ID</th>
-            <th>Nombre Medicamento</th>
-            <th>Cantidad</th>
-            <th>Demanda</th>
-            <th>Esencial</th>
-            <th>Mes</th>
-            <th>Club</th>
-            <th>Marca</th>
-            <th>Precio Unidad</th>
-            <th>Creado</th>
-            <th>Actualizado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredInventario!.map((item) => (
-            <tr key={item.id} className="odd:bg-white even:bg-slate-100">
-              <td>{item.id}</td>
-              <td>{item.nombreMedicamento}</td>
-              <td>{item.cantidad}</td>
-              <td>{item.demanda}</td>
-              <td>{item.esencial ? 'Sí' : 'No'}</td>
-              <td>{item.mes}</td>
-              <td>{item.club}</td>
-              <td>{item.marca}</td>
-              <td>{item.precioUnidad}</td>
-              <td>{new Date(item.createdAt).toLocaleDateString()}</td>
-              <td>{new Date(item.updatedAt).toLocaleDateString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+// Actualizar el inventario.
+export const action: ActionFunction = async () => {
+  try {
+    const data = await populateInventarioActual();
+    console.log(data)
+    return data;
+  } catch (error) {
+    console.error('Error al poblar el inventario actual:', error);
+    throw error;
+  }
 };
 
-export default InventarioActualTable;
+
+
+const columns = [
+  { key: 'nombreMedicamento', label: 'Nombre del Medicamento' },
+  { key: 'cantidad', label: 'Cantidad' },
+  { key: 'demanda', label: 'Demanda' },
+  { key: 'esencial', label: 'Esencial' },
+  { key: 'mes', label: 'Mes' },
+  { key: 'club', label: 'Club' },
+  { key: 'marca', label: 'Marca' },
+  { key: 'precioUnidad', label: 'Precio por Unidad' },
+];
+
+const searchKeys = ['nombreMedicamento', 'club', 'marca'];
+
+export default function InventarioActual() {
+  const inventarioData = useLoaderData() as Inventario[];
+  const fetcher = useFetcher();
+
+  return (
+
+    <>
+      <div className="flex justify-between">
+
+        <fetcher.Form method="put">
+          <button type="submit" className="mb-4 p-2 bg-[#005d90] hover:bg-[#35a1da] text-white rounded-sm">
+            Actualizar Inventario
+          </button>
+        </fetcher.Form>
+
+        <Link to="/dashboard/index/" className="mb-4 p-2 bg-gray-500 hover:bg-gray-700 text-white rounded-sm">
+          Volver al Inicio
+        </Link>
+
+
+
+      </div>
+
+
+      <PaginatedTable items={inventarioData} columns={columns} searchKeys={searchKeys} />
+    </>
+
+  )
+}

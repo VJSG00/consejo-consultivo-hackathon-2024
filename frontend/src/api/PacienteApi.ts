@@ -1,6 +1,5 @@
 // api/PacienteApi.ts
 import axios from 'axios';
-import { z } from 'zod';
 import { PacienteSchema, Paciente, PacientesSchema} from '../types/paciente';
 
 export async function getPacientes() {

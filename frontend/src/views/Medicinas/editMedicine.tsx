@@ -2,7 +2,7 @@ import { Link, Form, useActionData, ActionFunctionArgs, redirect, LoaderFunction
 import ErrorMessage from '../../components/ErrorMessage';
 import { deleteMedicine, getMedicineById, updateMedicine } from '../../api/MedicineApi';
 import { Medicamento } from '../../types/medicamento';
-import MedicineForm from '../../components/Forms/MedicineForm';
+// import MedicineForm from '../../components/Forms/MedicineForm';
 
 // TODO: Añadir Status a alguna parte de este código
 
@@ -92,7 +92,7 @@ export default function EditMedicine() {
 
       <Form className='mt-10' method='POST' action=''>
         
-        <MedicineForm key={medicine.id} medicine={medicine} />
+        {/* <MedicineForm key={medicine.id} medicine={medicine} /> */}
 
         <div className='mb-4'>
           <label className='text-gray-800' htmlFor='available'>

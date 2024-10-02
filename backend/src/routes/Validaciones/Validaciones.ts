@@ -8,7 +8,7 @@ const pacienteValidation = [
     body('direccion').optional().isString().withMessage('La dirección debe ser una cadena de texto'),
     body('telefono').optional().isString().withMessage('El teléfono debe ser una cadena de texto'),
     body('correo').notEmpty().isEmail().withMessage('El correo debe ser un correo válido'),
-    body('identificador').notEmpty().isIn(['cedula', 'p. nacimiento']).withMessage('El identificador debe ser "cedula" o "p. nacimiento"'),
+    body('identificador').notEmpty().isIn(['cedula', 'p.nacimiento']).withMessage('El identificador debe ser "cedula" o "p. nacimiento"'),
     body('cedula').optional().isString().withMessage('La cédula debe ser una cadena de texto'),
     body('partidaNacimiento').optional().isString().withMessage('La partida de nacimiento debe ser una cadena de texto'),
     body('antecedentes').optional().isArray().withMessage('Los antecedentes deben ser un array de cadenas de texto'),
@@ -81,10 +81,13 @@ const createFullEntregaValidation = [
 
 //Validaciones para Asignar Medicamentos:
 const asignarMedicamentosValidation = [
-    body('idPaciente').notEmpty().isInt().withMessage('El ID del paciente debe ser un número entero'),
+    body('identificador').notEmpty().isString().withMessage('El identificador debe ser una cadena de texto'),
+    body('valorIdentificador').notEmpty().isString().withMessage('El valor del identificador debe ser una cadena de texto'),
     body('nombreMedicamento').notEmpty().isString().withMessage('El nombre del medicamento debe ser una cadena de texto'),
-    body('cantidad').notEmpty().isInt({ min: 1 }).withMessage('La cantidad debe ser un número entero mayor que cero')
+    body('cantidad').notEmpty().isInt({ min: 1 }).withMessage('La cantidad debe ser un número entero mayor que cero'),
+    body('fechaPaciente').notEmpty().isISO8601().withMessage('La fecha del paciente debe ser una fecha válida')
 ];
+
 
 
 export {pacienteValidation, medicamentoValidation,donanteValidation, entregaValidation, createFullEntregaValidation, asignarMedicamentosValidation }

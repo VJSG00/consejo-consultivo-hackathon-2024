@@ -1,6 +1,5 @@
 // api/MedicineApi.ts
 import axios from 'axios';
-import { z } from 'zod';
 import { MedicamentoSchema, MedicamentosSchema, Medicamento } from '../types/medicamento';
 
 export async function getMedicines() {

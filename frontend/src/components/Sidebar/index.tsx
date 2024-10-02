@@ -10,21 +10,15 @@ import { useMediaQuery } from 'react-responsive';
 
 // react-icons
 import { IoIosArrowBack } from 'react-icons/io';
-import { SlSettings } from 'react-icons/sl';
-// import { AiOutlineAppstore } from 'react-icons/ai';
-// import { BsPerson } from 'react-icons/bs';
-// import { HiOutlineDatabase } from 'react-icons/hi';
-import { TbReportAnalytics } from 'react-icons/tb';
-import { RiBuilding3Line } from 'react-icons/ri';
+
 import { MdMenu } from 'react-icons/md';
 
-// components
-import Submenu from './SubMenu'
 
 // Otros iconos
 import { AiFillHome } from 'react-icons/ai';
 import { FaUserMd, FaUserFriends} from 'react-icons/fa';
 
+import logo3 from '../../assets/logo3.png'
 
 export default function SideBar() {
     
@@ -85,22 +79,6 @@ export default function SideBar() {
         isTab && setIsOpen(false)
     }, [pathname])
 
-    const subMenusList = [
-        {
-            // main menu name like(all apps, settings)
-            name: "build",
-            // react icons
-            icon: RiBuilding3Line,
-            // submenus
-            menus: ["auth", "app settings", "storage", "hosting"],
-
-        },
-        {
-            name: "analytics",
-            icon: TbReportAnalytics,
-            menus: ["dashboard", "realtime", "events"],
-        }
-    ]
 
 
     return ( 
@@ -123,8 +101,8 @@ export default function SideBar() {
                 
                 {/* Logo */}
                 <div className='flex items-center gap-3 font-medium border-b border-slate-300 py-3 mx-3'>
-                    <img src="https://www.svgrepo.com/show/419882/healthcare-hospital-medical-2.svg" alt=".." width={45} />
-                    <span className='text-xl whitespace-pre'>Gall.io</span>
+                    <img src={logo3} alt="logo3" width={80} />
+                    <span className='text-xl whitespace-pre'>Dashboard</span>
                 </div>
 
                 {/* Menus */}
@@ -133,61 +111,28 @@ export default function SideBar() {
                     <ul className='whitespace-pre px-2.5 text-[0.9rem] py-5 flex flex-col gap-1 font-medium overflow-x-hidden scrollbar-thin
                     scrollbar-track-white scrollbar-thumb-slate-100 h-[70%] md:max-h-[68%]'>
                         <li>
-                            <NavLink to="/" className={"link"} >
+                            <NavLink to="/dashboard/index" className={"link"} >
                                 <AiFillHome size={23} className='min-w-max' />
-                                Home
+                                Inicio
                             </NavLink>
                         </li>
                         <li>
-                            <NavLink to="/" className={"link"} >
+                            <NavLink to="/dashboard/index/pacientes" className={"link"} >
                                 <FaUserMd size={23} className='min-w-max' />
                                 Pacientes
                             </NavLink>
                         </li>
                         <li>
-                        <NavLink to="/" className={"link"} >
+                        <NavLink to="/dashboard/index/donantes" className={"link"} >
                             <FaUserFriends size={23} className='min-w-max' />
-                            Compañías
+                            Donantes
                         </NavLink>
                         </li>
 
-                        {/* with submenu */}
-                        {/* mobile view most show submenus */}
-                        { (isOpen || isTab) && (
-                                <div className='border-b py-5 border-slate-300'>
-                                <small className="pl-3 text-slate-500 inline-block  mb-2">Categoria de Productos</small>
-                                {subMenusList?.map(menu=>(
-                                        <div key={menu.name} className='flex flex-col gap-1'>
-                                            <Submenu data={menu} />
-                                        </div>
-    
-                                    ))}
-                                </div>   
-                            )
-                        }
-
-
-                        <li>
-                            <NavLink to="/" className={"link"} >
-                                <SlSettings size={23} className='min-w-max' />
-                                Configuración
-                            </NavLink>
-                        </li>
 
 
                     </ul>
                     {/* second */}
-                    {
-                        isOpen && <div className='flex-1 text-sm z-50 max-h-48 my-auto whitespace-pre w-full font-medium'>
-                            <div className='flex items-center justify-between border-y border-slate-300 p-4'>
-                                <div>
-                                    <p>Spark</p>
-                                    <small>No-cost 0$/month</small>
-                                </div>
-                                <p className='text-teal-500 py-1.5 px-3 text-xs bg-teal-50 rounded-xl '>Upgrade</p>
-                            </div>
-                        </div>
-                    }
 
                 </div>
                 

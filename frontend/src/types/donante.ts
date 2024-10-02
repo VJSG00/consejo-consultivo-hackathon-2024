@@ -6,7 +6,7 @@ export const DonanteSchema = z.object({
     nombre: z.string(),
     telefono: z.string(),
     correo: z.string(),
-    frecuencia: z.enum(['unicos', 'recurrente', 'frecuente', 'periodica']),
+    frecuencia: z.enum(['unica', 'recurrente', 'periodica']),
     tipo: z.enum(['particular', 'ong', 'privada', 'publico']),
     observaciones: z.string().nullable(),
     createdAt: z.string().datetime(),

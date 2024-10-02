@@ -8,7 +8,7 @@ export const PacienteSchema = z.object({
     direccion: z.string(),
     telefono: z.string(),
     correo: z.string(),
-    identificador: z.enum(['cedula', 'p. nacimiento']),
+    identificador: z.enum(['cedula', 'p.nacimiento']),
     cedula: z.string().nullable(),
     partidaNacimiento: z.string().nullable(),
     antecedentes: z.array(z.string()),

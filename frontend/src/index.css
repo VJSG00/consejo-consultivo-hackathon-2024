@@ -1,37 +1,69 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100.900;1,100.900&display=swap");
-
-@layer base {
-  .font-montserrat {
-    font-family: 'Montserrat', sans-serif;
-  }
-
-  html {
-    @apply font-montserrat;
-  }
-
-  body {
-    background: #f1f1f1;
-  }
-
-  h1 {
-    @apply text-xl font-medium capitalize;
-  }
-}
-
-@layer components {
-  .link {
-    @apply p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium text-slate-700 hover:bg-primary-hover;
-  }
-
-  .active {
-    @apply bg-primary text-primary-active;
-  }
-
-  .nav-button {
-    @apply hover:drop-shadow-lg flex w-full items-center justify-center rounded-full border border-[#0c550c] bg-[#d3e763] bg-gradient-to-tr from-[#97f163] to-[#78c048]/70 px-7 py-2.5 text-base font-bold text-slate-800 ring-lime-600 ring-offset-2 ring-offset-slate-700 drop-shadow-[0px_1px_2px_rgb(0,0,0,0.3)] active:ring-1;
-  }
+.link {
+  @apply p-2.5 flex rounded-sm gap-6 items-center md:cursor-pointer cursor-default duration-150 font-medium text-slate-700 hover:bg-[#35a1da];
 }
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --font-family: "Montserrat", sans-serif;
+  --primary-color: #26589e;
+  --secondary-color: #545b65;
+  --secondary-color-2: #b1d1ff;
+  --tertiary-color: #d6a419;
+  --background-color: #f4f9ff;
+  --text-color: #2c3e50;
+  --heading-font-size: 2em;
+  --paragraph-font-size: 1em;
+  --button-background-color: #26589e;
+  --button-background-color-2: #f1f1e6;
+  --button-text-color: #ffffff;
+  --button-hover-color: #2ac194;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--primary-color);
+  font-size: var(--heading-font-size);
+}
+
+p {
+  font-size: var(--paragraph-font-size);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--secondary-color);
+  text-decoration: none;
+}
+
+
+button {
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+/* button:hover {
+  background-color: var(--secondary-color-2);
+} */
+
+footer {
+  color-scheme: var(--tertiary-color);
+}
+

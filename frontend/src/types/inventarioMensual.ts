@@ -1,29 +1,17 @@
 import { z } from 'zod';
 
-export const InventarioMensualSchema = z.object({
-  pacientesActivos: z.number(),
-  totalPacientes: z.number(),
-  totalDonantes: z.number(),
-  totalEntregas: z.number(),
-  medicamentosMasSolicitados: z.array(z.object({
-    nombre: z.string(),
-    value: z.string(),
-  })),
-  comunidadesConMasPeticiones: z.array(z.object({
-    comunidad: z.string(),
-    value: z.string(),
-  })),
-  clubesDeEnfermedadesComunes: z.array(z.unknown()), // Asumiendo que es un array vacío o de objetos desconocidos
-  pacientes: z.array(z.unknown()), // Asumiendo que es un array vacío o de objetos desconocidos
-  medicamentosPorMes: z.array(z.object({
-    mes: z.string().datetime(),
-    cantidad: z.string(),
-  })),
-  donantesPorMes: z.array(z.object({
-    mes: z.string().datetime(),
-    cantidad: z.string(),
-  })),
-  porcentajeDemandaAbastecida: z.number(),
+export const MedicamentoSchema = z.object({
+  id: z.number(),
+  nombreMedicamento: z.string(),
+  recibidas: z.number(),
+  demanda: z.number(),
+  esencial: z.boolean(),
+  club: z.array(z.string()),
+  marca: z.string(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 });
 
-export type InventarioMensual = z.infer<typeof InventarioMensualSchema>;
+export const InventarioMensualSchema = z.array(MedicamentoSchema);
+
+export type InventarioMen = z.infer<typeof InventarioMensualSchema>;

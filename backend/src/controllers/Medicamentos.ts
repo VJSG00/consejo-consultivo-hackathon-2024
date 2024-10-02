@@ -4,6 +4,7 @@ import Paciente from '../models/Paciente.model';
 import db from '../config/db';
 import InventarioActual from '../models/Inventarios/InventarioActual';
 import InventarioMensual from '../models/Inventarios/InventarioMensual';
+import { AuthEmail } from '../emails/AuthEmail';
 
 export const getMedicamentos = async (req: Request, res: Response) => {
     const medicamentos = await Medicamento.findAll({
@@ -60,14 +61,20 @@ export const deleteMedicamento = async (req: Request, res: Response) => {
 };
 
 export const asignarMedicamentos = async (req: Request, res: Response) => {
-    const { idPaciente, nombreMedicamento, cantidad } = req.body;
+    const { identificador, valorIdentificador, nombreMedicamento, cantidad, fechaPaciente } = req.body;
 
-    console.log('Datos recibidos para asignación:', { idPaciente, nombreMedicamento, cantidad });
+    console.log('Datos recibidos para asignación:', { identificador, valorIdentificador, nombreMedicamento, cantidad, fechaPaciente });
 
     const transaction = await db.transaction();
     try {
-        // Verificar que el paciente existe
-        const paciente = await Paciente.findByPk(idPaciente, { transaction });
+        // Verificar que el paciente existe según el identificador
+        let paciente;
+        if (identificador === 'cedula') {
+            paciente = await Paciente.findOne({ where: { cedula: valorIdentificador }, transaction });
+        } else if (identificador === 'p.nacimiento') {
+            paciente = await Paciente.findOne({ where: { partidaNacimiento: valorIdentificador }, transaction });
+        }
+
         if (!paciente) {
             console.log('Paciente no encontrado');
             return res.status(404).json({ error: 'Paciente no encontrado' });
@@ -86,82 +93,67 @@ export const asignarMedicamentos = async (req: Request, res: Response) => {
 
         console.log('Medicamentos disponibles encontrados:', medicamentos);
 
-        if (medicamentos.length === 0) {
-            console.log('No se encontraron medicamentos disponibles');
-            return res.status(404).json({ error: 'No se encontraron medicamentos disponibles' });
-        }
-
         // Verificar que los medicamentos tienen la propiedad marca
-        for (const medicamento of medicamentos) {
-            console.log('Medicamento encontrado:', medicamento.dataValues);
-        }
+        const marca = medicamentos[0]?.dataValues?.marca || 'Generico';
 
-        // Asegurarse de que la marca no sea undefined
-        const marca = medicamentos[0]?.dataValues?.marca;
-        if (!marca) {
-            console.error('La marca del medicamento es undefined');
-            return res.status(400).json({ error: 'La marca del medicamento es undefined' });
-        }
-
-        const inventarioActual = await InventarioActual.findOne({
+        let inventarioActual = await InventarioActual.findOne({
             where: { nombreMedicamento, marca },
             transaction
         });
 
-        const dataInventario = inventarioActual.dataValues
-        console.log('Inventario actual encontrado:', inventarioActual.dataValues);
+        if (!inventarioActual) {
+            // Crear un nuevo inventario si no existe
+            inventarioActual = await InventarioActual.create({
+                nombreMedicamento,
+                marca: 'Generico',
+                cantidad: 0,
+                demanda: cantidad,
+                esencial: true,
+                mes: 'Desconocido',
+                club: ["Otro"],
+                precioUnidad: 0
+            }, { transaction });
+            console.log('Inventario creado:', inventarioActual.dataValues);
 
-        if (!dataInventario) {
-            console.error('Inventario no encontrado');
-            return res.status(404).json({ error: 'Inventario no encontrado' });
-        }
+            // Devolver respuesta ya que no hay medicamentos disponibles
+            await transaction.commit();
+            return res.status(200).json({ message: 'Inventario creado y demanda registrada', demanda: cantidad });
 
-        if (medicamentos.length < cantidad) {
-            const demanda = cantidad - medicamentos.length;
-            console.log('Demanda adicional:', demanda);
-            await inventarioActual.update({ demanda: dataInventario.demanda + demanda }, { transaction });
+        } else {
+            const dataInventario = inventarioActual.dataValues;
+            console.log('Inventario actual encontrado:', dataInventario);
 
-            console.log('No hay suficientes medicamentos disponibles');
-            return res.status(400).json({ error: 'No hay suficientes medicamentos disponibles', demanda });
-        }
-
-        console.log('Medicamentos encontrados:', medicamentos);
-
-        // Asignar medicamentos al paciente
-        for (const medicamento of medicamentos) {
-            const data = medicamento.dataValues;
-            console.log('Asignando medicamento:', data);
-
-            // Verificar que idPaciente no sea undefined o NaN
-            if (!idPaciente || isNaN(idPaciente)) {
-                console.error('idPaciente es inválido:', idPaciente);
-                return res.status(400).json({ error: 'idPaciente es inválido' });
+            let demanda = cantidad;
+            if (medicamentos.length < cantidad) {
+                console.log('Demanda adicional:', demanda);
+                await inventarioActual.update({ demanda: dataInventario.demanda + demanda, cantidad: 0 }, { transaction });
+            } else {
+                const nuevaCantidad = dataInventario.cantidad - cantidad;
+                await inventarioActual.update({ cantidad: nuevaCantidad, demanda: dataInventario.demanda + demanda }, { transaction });
             }
 
-            await medicamento.update({ idPaciente }, { transaction });
-            console.log('Medicamento asignado:', medicamento);
-        }
+            // Asignar medicamentos al paciente y actualizar fechaPaciente
+            for (const medicamento of medicamentos) {
+                await medicamento.update({ idPaciente: paciente.id, fechaPaciente }, { transaction });
+                console.log('Medicamento asignado:', medicamento.dataValues);
+            }
 
-        // Verificar que cantidad no sea NaN
-        const nuevaCantidad = dataInventario.cantidad - cantidad;
-        if (isNaN(nuevaCantidad)) {
-            console.error('La nueva cantidad es NaN:', nuevaCantidad);
-            return res.status(400).json({ error: 'La nueva cantidad es inválida' });
-        }
 
-        console.log('Nueva cantidad en inventario:', nuevaCantidad);
 
-        // Actualizar stock en inventario
-        await inventarioActual.update({ cantidad: nuevaCantidad }, { transaction });
-        console.log('Inventario actualizado:', inventarioActual.dataValues);
+            await AuthEmail.EmailAsignación({
+                email: paciente.dataValues.correo,
+                name: paciente.dataValues.nombreCompleto,
+                cantidad,
+                fechaPaciente,
+                nombreMedicamento
+            });
 
-        await transaction.commit();
-        res.status(200).json({ message: 'Medicamentos asignados correctamente' });
+            await transaction.commit();
+            res.status(200).json({ message: 'Medicamentos asignados correctamente y correo enviado', demanda });
+        };
     } catch (error) {
         await transaction.rollback();
         console.error('Error al asignar medicamentos:', error);
         res.status(500).json({ error: 'Error al asignar medicamentos' });
     }
-};
-
-
+}

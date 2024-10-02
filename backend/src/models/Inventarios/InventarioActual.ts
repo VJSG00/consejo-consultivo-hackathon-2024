@@ -35,10 +35,10 @@ class InventarioActual extends Model {
     mes!: string;
 
     @Column({
-        type: DataType.STRING,
-        allowNull: false
+        type: DataType.ARRAY(DataType.STRING),
+        allowNull: true,
     })
-    club!: string;
+    club!: string[];
 
     @Column({
         type: DataType.STRING,

@@ -7,6 +7,9 @@ import Medicamento from '../models/Medicamento.model';
 import Paciente from '../models/Paciente.model';
 import EntregaMedicamentos from '../models/EntregaMedicamentos.model';
 import db from '../config/db';
+import jwt from 'jsonwebtoken';
+import Usuarios from '../models/Usuarios.model';
+import { AuthEmail } from '../emails/AuthEmail';
 
 // controladores basicos
 export const getEntregas = async (req: Request, res: Response) => {
@@ -63,7 +66,6 @@ export const deleteEntrega = async (req: Request, res: Response) => {
 };
 
 // controladores avanzados
-
 export const createFullEntrega = async (req: Request, res: Response) => {
     const { entregaData, donanteData, medicamentosData, cantidadUnidades } = req.body;
 
@@ -77,6 +79,13 @@ export const createFullEntrega = async (req: Request, res: Response) => {
         if (!donante) {
             donante = await Donante.create(donanteData, { transaction });
             console.log('Donante creado:', donante);
+            const data = donante.dataValues;
+            const role: 'Donante' = 'Donante';
+            const token = jwt.sign({ email: data.correo, role }, process.env.JWT_SECRET, { expiresIn: '24h' });
+
+            // Crear el usuario asociado al donante
+            await Usuarios.create({ email: data.correo, password: '', role, donanteCorreo: data.correo, idDonante: data.id }, { transaction });
+            await AuthEmail.sendConfirmationEmail({ email: data.correo, name: data.nombre, token });
         }
 
         // Crear la entrega
@@ -116,4 +125,3 @@ export const createFullEntrega = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Error al crear la entrega completa' });
     }
 };
-
